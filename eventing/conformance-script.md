@@ -101,9 +101,18 @@ Check for condition type `Ready` with status `True`:
 kubectl get trigger conformance-trigger -ojson | jq '.status.conditions[] |select(.type == "Ready")'
 ```
 
-Congratulations you have tested the **Broker Lifecycle Conformance**!
+Congratulations you have tested the **Broker Lifecycle Conformance** :metal: !
 
 
+
+
+# Other Notes: 
+
+- The [**Resource Lifecycle Section**](https://github.com/knative/specs/blob/main/specs/eventing/control-plane.md#resource-lifecycle) (Broker, Trigger, Channel, Subscription and Destination Resolution) can be automated by creating resources and running commands as described in the previous section.
+
+- The [**Event Routing Section**](https://github.com/knative/specs/blob/main/specs/eventing/control-plane.md#event-routing) describes internal Broker behaviours, which needs to be observed and inferred based on results. In the **Topology Based Routing** section, the sentence `Before acknowledging an event, the Channel MUST durably enqueue the event (be able to deliver with retry without receiving the event again).` implies that we can check this from outside the Channel. Conformance should check that events are delivered, if they are `durably enqueued` is loosly defined here, and impossible to check from the outside. This is also a Data Plane concern not a control plane one. 
+
+- The [**Detailed Resources Section**](https://github.com/knative/specs/blob/main/specs/eventing/control-plane.md#detailed-resources) can be tested by creating different resources with the REQUIRED fields and see if they work. There are tons of optionals, which we shouldn't be covering at this stage, so automating this and creating the resources shouldn't take much. 
 
 # Emit Events
 
