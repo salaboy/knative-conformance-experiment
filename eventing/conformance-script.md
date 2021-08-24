@@ -1,6 +1,8 @@
 # Conformance Steps to manually test Knative Eventing
 
 
+## Broker Lifecycle 
+
 From: https://github.com/knative/specs/blob/main/specs/eventing/control-plane.md#broker-lifecycle
 
 ```
@@ -15,7 +17,7 @@ The annotation eventing.knative.dev/broker.class SHOULD be used to select a part
 
 
 
-## Requirements: 
+### Requirements: 
 
 If I want to test conformance (MUST, MUST NOT, REQUIRED) for the previous two paragraphs I need: 
 - **Prerequisites**: 
@@ -26,10 +28,11 @@ If I want to test conformance (MUST, MUST NOT, REQUIRED) for the previous two pa
 - A trigger resource that reference the broker: trigger.yaml 
 - A trigger resource that doesn't reference the broker: trigger-no-broker.yaml
 - A Kubernetes Service that can be addresable to receive and count cloudevents that arrive
+  - Clone `https://github.com/salaboy/knative-conformance-experiment` and `cd` to `events-counter` and then run `ko apply -f config/` 
 - `curl` to send CloudEvents
 
 
-## Testing for Conformance: 
+### Testing for Conformance: 
 
 
 Create a broker to test conformance
@@ -44,7 +47,7 @@ Check for default annotations, this should return the name of the selected imple
 kubectl get broker conformance-broker -ojson | jq '.metadata.annotations["eventing.knative.dev/broker.class"]'
 ```
 
-Try to patch the annotation to see if the resource mutates: 
+Try to patch the annotation: `eventing.knative.dev/broker.class` to see if the resource mutates: 
 
 ```
 kubectl patch broker conformance-broker --type merge -p '{"metadata":{"annotations":{"eventing.knative.dev/broker.class":"mutable"}}}'
@@ -57,6 +60,14 @@ Error from server (BadRequest): admission webhook "validation.webhook.eventing.k
 	-: "MTChannelBasedBroker"
 	+: "mutable"
 ```
+
+Try to mutate the `.spec.config` to see if the resource mutates: 
+
+```
+kubectl patch broker conformance-broker --type merge -p '{"spec":{"config":{"apiVersion":"v1"}}}'
+```
+
+**@TODO**: check why this is not returning an error, it seems that a validation webhook is missing
 
 
 Check for condition type `Ready` with status `True`: 
@@ -90,13 +101,13 @@ Check for condition type `Ready` with status `True`:
 kubectl get trigger conformance-trigger -ojson | jq '.status.conditions[] |select(.type == "Ready")'
 ```
 
+Congratulations you have tested the **Broker Lifecycle Conformance**!
 
 
 
+# Emit Events
 
-
-
-
+```
 curl -X POST -H "Content-Type: application/json" \
   -H "ce-specversion: 1.0" \
   -H "ce-source: curl-command" \
@@ -105,6 +116,8 @@ curl -X POST -H "Content-Type: application/json" \
   -d '{"name":"Salaboy testing conformance"}' \
   http://broker-ingress.knative-eventing.127.0.0.1.nip.io/default/conformance-broker 
 ```
+
+
 
 
 
