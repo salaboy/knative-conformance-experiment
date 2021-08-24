@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: events-counter
+  labels:
+    app: runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner 
+  template:
+    metadata:
+      labels:
+        app: runner 
+    spec:
+      containers:
+      - name:  runner
+        image: ko://github.com/salaboy/events-counter
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: events-counter-service
+spec:
+  selector:
+    app: runner
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
