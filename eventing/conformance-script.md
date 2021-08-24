@@ -23,7 +23,7 @@ If I want to test conformance (MUST, MUST NOT, REQUIRED) for the previous two pa
 - **Prerequisites**: 
     - Knative Eventing Installed. 
     - `kubectl` access to the cluster as defined in the spec: https://github.com/knative/specs/blob/main/specs/eventing/control-plane.md#rbac-profile
-    - `yq` installed
+    - `jq` installed
 - A broker resource: broker.yaml
 - A trigger resource that reference the broker: trigger.yaml 
 - A trigger resource that doesn't reference the broker: trigger-no-broker.yaml
