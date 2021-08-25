@@ -1,9 +1,12 @@
 # Knative Eventing Conformance Test Plan
 
+This document descibe a test plan for testing Knative Eventing Conformance based on the specs that can be found here: https://github.com/knative/specs/blob/main/specs/eventing
+
+The specs are splitted into Control Plane and Data Plane tests, this document follows the same approach and further divide the tests into further subsections. 
+
 # Control Plane
 
 https://github.com/knative/specs/blob/main/specs/eventing/control-plane.md
-
 
 
 ## Requirements: 
@@ -25,7 +28,7 @@ If you want to test conformance (**MUST, MUST NOT, REQUIRED**) you need:
 - [Subscription Lifecycle Conformance](subscription-lifecycle-conformance.md)
 
 
-# Other Notes: 
+## Other Notes about Control Plane Spec
 
 - The [**Resource Lifecycle Section**](https://github.com/knative/specs/blob/main/specs/eventing/control-plane.md#resource-lifecycle) (Broker, Trigger, Channel, Subscription and Destination Resolution) can be automated by creating resources and running commands as described in the previous section.
 
@@ -47,6 +50,10 @@ If you want to test conformance (**MUST, MUST NOT, REQUIRED**) you need:
 # Data Plane
 
 https://github.com/knative/specs/blob/main/specs/eventing/data-plane.md
+
+## Test Plan for Data Plane
+
+- [Event Ack and Delivery Retry](event-ack-and-retry.md)
 
 
 # Emit Events
