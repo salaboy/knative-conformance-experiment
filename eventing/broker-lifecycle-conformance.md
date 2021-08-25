@@ -5,14 +5,14 @@ From: https://github.com/knative/specs/blob/main/specs/eventing/control-plane.md
 
 From the Spec: 
 
-"A Broker represents an Addressable endpoint (i.e. it MUST have a status.address.url field) which can receive, store, and forward events to multiple recipients based on a set of attribute filters (Triggers). 
+>> A Broker represents an Addressable endpoint (i.e. it MUST have a status.address.url field) which can receive, store, and forward events to multiple recipients based on a set of attribute filters (Triggers). 
 
-Triggers MUST be associated with a Broker based on the spec.broker field on the Trigger; it is expected that the controller for a Broker will also control the associated Triggers. 
+>> Triggers MUST be associated with a Broker based on the spec.broker field on the Trigger; it is expected that the controller for a Broker will also control the associated Triggers. 
 
-When the Broker's Ready condition is true, the Broker MUST provide a status.address.url which accepts all valid CloudEvents and MUST attempt to forward the received events for filtering to each associated Trigger whose Ready condition is true. As described in the Trigger Lifecycle section, a Broker MAY forward events to an associated Trigger destination which does not currently have a true Ready condition, including events received by the Broker before the Trigger was created.
+>> When the Broker's Ready condition is true, the Broker MUST provide a status.address.url which accepts all valid CloudEvents and MUST attempt to forward the received events for filtering to each associated Trigger whose Ready condition is true. As described in the Trigger Lifecycle section, a Broker MAY forward events to an associated Trigger destination which does not currently have a true Ready condition, including events received by the Broker before the Trigger was created.
 
-The annotation eventing.knative.dev/broker.class SHOULD be used to select a particular implementation of a Broker, if multiple implementations are available. It is RECOMMENDED to default the eventing.knative.dev/broker.class field on creation if it is unpopulated. Once created, the eventing.knative.dev/broker.class annotation and the spec.config field MUST be immutable; the Broker MUST be deleted and re-created to change the implementation class or spec.config. This pattern is chosen to make it clear that changing the implementation class or spec.config is not an atomic operation and that any implementation would be likely to result in event loss during the transition.
-"
+>> The annotation eventing.knative.dev/broker.class SHOULD be used to select a particular implementation of a Broker, if multiple implementations are available. It is RECOMMENDED to default the eventing.knative.dev/broker.class field on creation if it is unpopulated. Once created, the eventing.knative.dev/broker.class annotation and the spec.config field MUST be immutable; the Broker MUST be deleted and re-created to change the implementation class or spec.config. This pattern is chosen to make it clear that changing the implementation class or spec.config is not an atomic operation and that any implementation would be likely to result in event loss during the transition.
+
 
 
 # Testing Broker Lifecycle Conformance: 

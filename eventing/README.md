@@ -56,18 +56,6 @@ https://github.com/knative/specs/blob/main/specs/eventing/data-plane.md
 - [Event Ack and Delivery Retry](event-ack-and-retry.md)
 
 
-# Emit Events
-
-```
-curl -X POST -H "Content-Type: application/json" \
-  -H "ce-specversion: 1.0" \
-  -H "ce-source: curl-command" \
-  -H "ce-type: ConformanceTested" \
-  -H "ce-id: 123-abc" \
-  -d '{"name":"Salaboy testing conformance"}' \
-  http://broker-ingress.knative-eventing.127.0.0.1.nip.io/default/conformance-broker 
-```
-
 
 
 

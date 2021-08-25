@@ -3,3 +3,6 @@ kind: broker
 metadata:
  name: conformance-broker
  namespace: default
+spec: 
+  delivery:
+    retry: 1 
