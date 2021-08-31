@@ -1,7 +1,7 @@
 apiVersion: eventing.knative.dev/v1
 kind: Trigger
 metadata:
-  name: conformance-trigger
+  name: conformance-trigger-no-broker
   namespace: default
 spec:
   broker: non-existent-broker

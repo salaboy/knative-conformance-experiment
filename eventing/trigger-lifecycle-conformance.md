@@ -30,7 +30,7 @@ kubectl apply -f control-plane/trigger-lifecycle/trigger-no-broker.yaml
 Check that the trigger is not Ready, as the Broker doesn't exist
 
 ```
- kubectl get trigger conformance-trigger -ojson | jq '.status.conditions[] |select(.type == "Ready")' 
+ kubectl get trigger conformance-trigger-no-broker -ojson | jq '.status.conditions[] |select(.type == "Ready")' 
 ```
 
 ### [Output]
@@ -46,6 +46,21 @@ Check that the trigger is not Ready, as the Broker doesn't exist
 }
 ```
 
+## [Pre] Creating a Trigger with a reference to a non-existent Broker 
+
+```
+kubectl apply -f control-plane/trigger-lifecycle/trigger-no-subscriber-ref.yaml
+kubectl apply -f control-plane/trigger-lifecycle/broker.yaml
+```
+
+
+## [Test] Trigger Non Readyness if no subscriber ref resolvable
+
+Check that the trigger is not Ready, as the subscriber ref cannot be resolved
+
+```
+ kubectl get trigger conformance-trigger-no-subscriber-ref -ojson | jq '.status.conditions[] |select(.type == "Ready")' 
+```
 
 # Clean up & Congrats
 
