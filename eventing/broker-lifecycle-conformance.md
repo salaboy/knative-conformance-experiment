@@ -31,6 +31,7 @@ You can find the resources for running these tests inside the `control-plane/bro
 kubectl apply -f control-plane/broker-lifecycle/broker.yaml
 ```
 
+
 ## [Test] Immutability
 
 Check for default annotations, this should return the name of the selected implementation: 
@@ -53,6 +54,18 @@ Error from server (BadRequest): admission webhook "validation.webhook.eventing.k
 	+: "mutable"
 ```
 
+### [Output]
+
+```
+{
+  "test": "control-plane/immutability-1"
+  "output": {
+  	"brokerImplementation": ""
+	"expectedError": ""
+  }
+}
+```
+
 Try to mutate the `.spec.config` to see if the resource mutates: 
 
 ```
@@ -60,6 +73,18 @@ kubectl patch broker conformance-broker --type merge -p '{"spec":{"config":{"api
 ```
 
 **ISSUE Reported**: https://github.com/knative/eventing/issues/5663 
+
+### [Output]
+
+```
+{
+  "test": "control-plane/immutability-2"
+  "output": {
+  	"brokerImplementation": "<BROKER IMPLEMENTATION>",
+	"expectedError": "<EXPECTED ERROR>"
+  }
+}
+```
 
 
 ## [Test] Broker Readyness 
@@ -70,6 +95,19 @@ Check for condition type `Ready` with status `True`:
  kubectl get broker conformance-broker -ojson | jq '.status.conditions[] |select(.type == "Ready")' 
 ```
 
+### [Output]
+
+```
+{
+  "test": "control-plane/broker-readyness"
+  "output": {
+  	"brokerImplementation": "<BROKER IMPLEMENTATION>",
+	"expectedType": "Ready",
+	"expectedStatus": "True"
+  }
+}
+```
+
 ## [Test] Broker is Addresable
 
 Running the following command should return a URL
@@ -78,7 +116,18 @@ Running the following command should return a URL
 kubectl get broker conformance-broker -ojson | jq .status.address.url
 ```
 
-## [Pre] Create Trigger
+### [Output]
+
+```
+{
+  "test": "control-plane/broker-addressable"
+  "output": {
+  	"brokerImplementation": "",
+	"obtainedURL": "<BROKER URL>",
+  }
+}
+
+## [Pre] Create Trigger for Broker
 
 Create a trigger that points to the broker:
 
@@ -86,13 +135,26 @@ Create a trigger that points to the broker:
 kubectl apply -f control-plane/broker-lifecycle/trigger.yaml
 ```
 
+## [Test] Broker Reference in Trigger
+
 Check that the `Trigger` is making a reference to the `Broker`, this should return the name of the broker.
 
 ```
 kubectl get trigger conformance-trigger -ojson | jq '.spec.broker'
 ```
 
-## [Test] Trigger Readyness
+### [Output]
+
+```
+{
+  "test": "control-plane/broker-reference-in-trigger"
+  "output": {
+  	"brokerImplementation": "<BROKER IMPLEMENTATION>",
+	"expectedReference": "conformance-broker"
+  }
+}
+
+## [Test] Trigger for Broker Readyness
 
 Check for condition type `Ready` with status `True`: 
 
@@ -100,5 +162,16 @@ Check for condition type `Ready` with status `True`:
 kubectl get trigger conformance-trigger -ojson | jq '.status.conditions[] |select(.type == "Ready")'
 ```
 
+### [Output]
+
+```
+{
+  "test": "control-plane/trigger-for-broker-readyness"
+  "output": {
+  	"brokerImplementation": "<BROKER IMPLEMENTATION>",
+	"expectedType": "Ready",
+	"expectedStatus": "True"
+  }
+}
 
 Congratulations you have tested the **Broker Lifecycle Conformance** :metal: !
