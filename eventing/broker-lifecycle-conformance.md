@@ -60,8 +60,8 @@ Error from server (BadRequest): admission webhook "validation.webhook.eventing.k
 {
   "test": "control-plane/immutability-1"
   "output": {
-  	"brokerImplementation": ""
-	"expectedError": ""
+    	"brokerImplementation": "<BROKER IMPLEMENTATION>",
+	"expectedError": "<EXPECTED ERROR>"
   }
 }
 ```
