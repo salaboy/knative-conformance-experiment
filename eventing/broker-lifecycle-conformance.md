@@ -58,7 +58,7 @@ Error from server (BadRequest): admission webhook "validation.webhook.eventing.k
 
 ```
 {
-  "test": "control-plane/immutability-1"
+  "test": "control-plane/broker-lifecycle/immutability-1"
   "output": {
     	"brokerImplementation": "<BROKER IMPLEMENTATION>",
 	"expectedError": "<EXPECTED ERROR>"
@@ -78,7 +78,7 @@ kubectl patch broker conformance-broker --type merge -p '{"spec":{"config":{"api
 
 ```
 {
-  "test": "control-plane/immutability-2"
+  "test": "control-plane/broker-lifecycle/immutability-2"
   "output": {
   	"brokerImplementation": "<BROKER IMPLEMENTATION>",
 	"expectedError": "<EXPECTED ERROR>"
@@ -99,7 +99,7 @@ Check for condition type `Ready` with status `True`:
 
 ```
 {
-  "test": "control-plane/broker-readyness"
+  "test": "control-plane/broker-lifecycle/broker-readyness"
   "output": {
   	"brokerImplementation": "<BROKER IMPLEMENTATION>",
 	"expectedType": "Ready",
@@ -120,7 +120,7 @@ kubectl get broker conformance-broker -ojson | jq .status.address.url
 
 ```
 {
-  "test": "control-plane/broker-addressable"
+  "test": "control-plane/broker-lifecycle/broker-addressable"
   "output": {
   	"brokerImplementation": "",
 	"obtainedURL": "<BROKER URL>",
@@ -147,7 +147,7 @@ kubectl get trigger conformance-trigger -ojson | jq '.spec.broker'
 
 ```
 {
-  "test": "control-plane/broker-reference-in-trigger"
+  "test": "control-plane/broker-lifecycle/broker-reference-in-trigger"
   "output": {
   	"brokerImplementation": "<BROKER IMPLEMENTATION>",
 	"expectedReference": "conformance-broker"
@@ -166,12 +166,22 @@ kubectl get trigger conformance-trigger -ojson | jq '.status.conditions[] |selec
 
 ```
 {
-  "test": "control-plane/trigger-for-broker-readyness"
+  "test": "control-plane/broker-lifecycle/trigger-for-broker-readyness"
   "output": {
   	"brokerImplementation": "<BROKER IMPLEMENTATION>",
 	"expectedType": "Ready",
 	"expectedStatus": "True"
   }
 }
+
+
+# Clean up & Congrats
+
+Make sure that you clean up all resources created in these tests by running: 
+
+```
+kubectl delete -f control-plane/broker-lifecycle/
+```
+
 
 Congratulations you have tested the **Broker Lifecycle Conformance** :metal: !
