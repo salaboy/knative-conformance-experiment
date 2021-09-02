@@ -12,18 +12,19 @@ import (
 	"net/http"
 )
 
-var events map[string]*event.Event
-
-var failFlag = true
+var receivedEvents map[string]*event.Event
+var failedEvents map[string]*event.Event
 
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/events", EventReportHandler).Methods("GET")
 	r.HandleFunc("/events", EventReceiverHandler).Methods("POST")
 	r.HandleFunc("/events", EventDeleteReceiverHandler).Methods("DELETE")
-	r.HandleFunc("/events/data-plane/delivery-retry", EventFailOnceReceiverHandler).Methods("POST")
+	r.HandleFunc("/events/data-plane/delivery-retry", EventDeliveryRetryReceiverHandler).Methods("POST")
+	r.HandleFunc("/events/data-plane/delivery-retry/report", EventDeliveryRetryReportReceiverHandler).Methods("GET")
 
-	events = make(map[string]*event.Event)
+	receivedEvents = make(map[string]*event.Event)
+	failedEvents = make(map[string]*event.Event)
 	log.Printf("Events Counter 8080!")
 	http.Handle("/", r)
 
@@ -31,7 +32,7 @@ func main() {
 }
 
 func EventReportHandler(writer http.ResponseWriter, request *http.Request) {
-	respondWithJSON(writer, http.StatusOK, &events)
+	respondWithJSON(writer, http.StatusOK, &receivedEvents)
 }
 
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
@@ -43,7 +44,8 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 }
 
 func EventDeleteReceiverHandler(writer http.ResponseWriter, request *http.Request) {
-	events = make(map[string]*event.Event)
+	receivedEvents = make(map[string]*event.Event)
+	failedEvents = make(map[string]*event.Event)
 	fmt.Printf("Reseting Event Store ...")
 	respondWithJSON(writer, http.StatusOK, nil)
 }
@@ -53,27 +55,39 @@ func EventReceiverHandler(writer http.ResponseWriter, request *http.Request) {
 	ctx := context.Background()
 	message := cehttp.NewMessageFromHttpRequest(request)
 	event, _ := binding.ToEvent(ctx, message)
-	events[event.ID()] = event
+	receivedEvents[event.ID()] = event
 	fmt.Printf("Got an Event: %s", event)
 	respondWithJSON(writer, http.StatusOK, &event)
 }
 
-func EventFailOnceReceiverHandler(writer http.ResponseWriter, request *http.Request) {
+var failForRedeliveryFlag = true
 
+func EventDeliveryRetryReceiverHandler(writer http.ResponseWriter, request *http.Request) {
 	ctx := context.Background()
 	message := cehttp.NewMessageFromHttpRequest(request)
 	event, _ := binding.ToEvent(ctx, message)
-	events[event.ID()] = event
 	fmt.Printf("Got an Event: %s\n", event)
-	fmt.Printf("Should I fail? %s\n", failFlag)
-	if failFlag {
+	fmt.Printf("Should I fail? %s\n", failForRedeliveryFlag)
+	if failForRedeliveryFlag {
 		fmt.Printf("But I am returning: %s\n", http.StatusBadRequest)
+		failedEvents[event.ID()] = event
 		respondWithJSON(writer, http.StatusBadRequest, &event)
-		failFlag = false
+		failForRedeliveryFlag = false
 	} else {
-		failFlag = true
+		receivedEvents[event.ID()] = event
 		fmt.Printf("I am returning: %s\n", http.StatusOK)
 		respondWithJSON(writer, http.StatusOK, &event)
 	}
 
+}
+type EventDeliveryRetryReport struct{
+	receivedEvents map[string]*event.Event
+	failedEvents map[string]*event.Event
+}
+func EventDeliveryRetryReportReceiverHandler(writer http.ResponseWriter, request *http.Request) {
+	var report = EventDeliveryRetryReport{
+		receivedEvents: receivedEvents,
+		failedEvents: failedEvents,
+	}
+	respondWithJSON(writer, http.StatusOK, &report)
 }
