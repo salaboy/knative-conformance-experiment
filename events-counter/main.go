@@ -20,7 +20,8 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/events", EventReportHandler).Methods("GET")
 	r.HandleFunc("/events", EventReceiverHandler).Methods("POST")
-	r.HandleFunc("/events-fail-once", EventFailOnceReceiverHandler).Methods("POST")
+	r.HandleFunc("/events", EventDeleteReceiverHandler).Methods("DELETE")
+	r.HandleFunc("/events/data-plane/delivery-retry", EventFailOnceReceiverHandler).Methods("POST")
 
 	events = make(map[string]*event.Event)
 	log.Printf("Events Counter 8080!")
@@ -39,6 +40,12 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(response)
+}
+
+func EventDeleteReceiverHandler(writer http.ResponseWriter, request *http.Request) {
+	events = make(map[string]*event.Event)
+	fmt.Printf("Reseting Event Store ...")
+	respondWithJSON(writer, http.StatusOK, nil)
 }
 
 func EventReceiverHandler(writer http.ResponseWriter, request *http.Request) {

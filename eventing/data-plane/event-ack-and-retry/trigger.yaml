@@ -6,4 +6,4 @@ metadata:
 spec:
   broker: conformance-broker
   subscriber:
-    uri: http://events-counter-service.default.svc.cluster.local/events-fail-once
+    uri: http://events-counter-service.default.svc.cluster.local/events/data-plane/delivery-retry
