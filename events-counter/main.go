@@ -15,6 +15,14 @@ import (
 var receivedEvents map[string]*event.Event
 var failedEvents map[string]*event.Event
 
+var report EventDeliveryRetryReport
+
+type EventDeliveryRetryReport struct{
+	ReceivedEvents map[string]*event.Event
+	FailedEvents map[string]*event.Event
+}
+
+
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/events", EventReportHandler).Methods("GET")
@@ -23,8 +31,11 @@ func main() {
 	r.HandleFunc("/events/data-plane/delivery-retry", EventDeliveryRetryReceiverHandler).Methods("POST")
 	r.HandleFunc("/events/data-plane/delivery-retry/report", EventDeliveryRetryReportReceiverHandler).Methods("GET")
 
-	receivedEvents = make(map[string]*event.Event)
-	failedEvents = make(map[string]*event.Event)
+
+	report = EventDeliveryRetryReport{
+		ReceivedEvents: make(map[string]*event.Event),
+		FailedEvents: make(map[string]*event.Event),
+	}
 	log.Printf("Events Counter 8080!")
 	http.Handle("/", r)
 
@@ -44,6 +55,7 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 }
 
 func EventDeleteReceiverHandler(writer http.ResponseWriter, request *http.Request) {
+	// clean up all reports and store
 	receivedEvents = make(map[string]*event.Event)
 	failedEvents = make(map[string]*event.Event)
 	fmt.Printf("Reseting Event Store ...")
@@ -70,24 +82,18 @@ func EventDeliveryRetryReceiverHandler(writer http.ResponseWriter, request *http
 	fmt.Printf("Should I fail? %s\n", failForRedeliveryFlag)
 	if failForRedeliveryFlag {
 		fmt.Printf("But I am returning: %s\n", http.StatusBadRequest)
-		failedEvents[event.ID()] = event
+		report.FailedEvents[event.ID()] = event
 		respondWithJSON(writer, http.StatusBadRequest, &event)
 		failForRedeliveryFlag = false
 	} else {
-		receivedEvents[event.ID()] = event
+		report.ReceivedEvents[event.ID()] = event
 		fmt.Printf("I am returning: %s\n", http.StatusOK)
 		respondWithJSON(writer, http.StatusOK, &event)
 	}
 
 }
-type EventDeliveryRetryReport struct{
-	receivedEvents map[string]*event.Event
-	failedEvents map[string]*event.Event
-}
+
 func EventDeliveryRetryReportReceiverHandler(writer http.ResponseWriter, request *http.Request) {
-	var report = EventDeliveryRetryReport{
-		receivedEvents: receivedEvents,
-		failedEvents: failedEvents,
-	}
+
 	respondWithJSON(writer, http.StatusOK, &report)
 }
